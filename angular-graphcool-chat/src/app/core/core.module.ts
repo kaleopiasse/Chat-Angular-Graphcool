@@ -1,7 +1,6 @@
 import { NgModule, Optional, SkipSelf } from '@angular/core';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {MatToolbarModule, MatListModule} from '@angular/material';
 
 import { ApolloConfigModule } from './../apollo-config.module';
 
@@ -9,8 +8,6 @@ import { ApolloConfigModule } from './../apollo-config.module';
   exports: [
     BrowserAnimationsModule,
     ApolloConfigModule,
-    MatToolbarModule,
-    MatListModule
   ]
 })
 export class CoreModule {

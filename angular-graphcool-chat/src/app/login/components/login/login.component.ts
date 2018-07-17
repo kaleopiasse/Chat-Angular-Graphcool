@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
+
+import {AuthService} from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -18,6 +21,7 @@ export class LoginComponent implements OnInit {
   private nameControl = new FormControl('', [Validators.required, Validators.minLength(5)]);
 
   constructor(
+    private authService: AuthService,
     private formBuilder: FormBuilder
   ) { }
 
@@ -34,6 +38,15 @@ export class LoginComponent implements OnInit {
 
   onSubmit() {
     console.log(this.loginForm.value);
+
+    const operation: Observable<any> =
+    (this.configs.isLogin)
+      ? this.authService.signinUser(this.loginForm.value)
+      : this.authService.signupUser(this.loginForm.value);
+
+      operation.subscribe(res => {
+        console.log('redirecting...', res);
+      });
   }
 
   changeAction(): void {

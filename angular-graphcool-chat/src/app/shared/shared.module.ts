@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import {
   MatButtonModule,
   MatCardModule,
+  MatSlideToggleModule,
   MatToolbarModule,
   MatFormFieldModule,
   MatInputModule,
@@ -17,6 +18,7 @@ import {
     CommonModule,
     MatButtonModule,
     MatCardModule,
+    MatSlideToggleModule,
     MatToolbarModule,
     MatFormFieldModule,
     MatInputModule,

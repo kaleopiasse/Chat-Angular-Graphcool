@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostBinding } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
@@ -8,7 +8,6 @@ import {AuthService} from '../../../core/services/auth.service';
 import { ErrorService } from '../../../core/services/error.service';
 
 @Component({
-  selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -24,6 +23,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private nameControl = new FormControl('', [Validators.required, Validators.minLength(5)]);
   private alive = true;
+  @HostBinding('class.app-login-spinner')private applySpinnerClass = true
 
   constructor(
     private authService: AuthService,
@@ -46,6 +46,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   onSubmit() {
     console.log(this.loginForm.value);
 
+    this.configs.isLoading = true
+
     const operation: Observable<any> =
     (this.configs.isLogin)
       ? this.authService.signinUser(this.loginForm.value)
@@ -58,9 +60,15 @@ export class LoginComponent implements OnInit, OnDestroy {
     .subscribe(
       res => {
         console.log('redirecting...', res);
+        const redirect: string = this.authService.redirectUrl || '/dashboard';
+        // redirect com router
+        console.log('route to redirect: ', redirect);
+        this.authService.redirectUrl = null;
+        this.configs.isLoading = false
       },
       err => {
         console.log(err);
+        this.configs.isLoading = false
         this.snackBar.open(this.erroService.getErrorMessage(err), 'Done', {duration: 5000, verticalPosition: 'top'});
       },
       () => console.log('Observable completed!')
@@ -77,6 +85,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   get email(): FormControl { return <FormControl>this.loginForm.get('email'); }
   get password(): FormControl { return <FormControl>this.loginForm.get('password'); }
   get name(): FormControl { return <FormControl>this.loginForm.get('name'); }
+
+  
+  onKeepSigned(): void{
+    this.authService.toggleKeepSigned();
+  }
 
   ngOnDestroy(): void {
     this.alive = false;

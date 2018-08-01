@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 @Component({
   selector: 'app-root',
   template: `
-    <app-login></app-login>
+    <router-outlet></router-outlet>
   `
 })
 export class AppComponent {}

@@ -6,7 +6,8 @@
         <span class="spacer"></span>
         <mat-spinner
         diameter="25"
-        strokeWidth="2"></mat-spinner>
+        strokeWidth="2"
+        *ngIf="configs.isLoading"></mat-spinner>
       </mat-toolbar>
     </mat-card-title>
     <mat-card-content>
@@ -38,6 +39,7 @@
             Enter at leats 4 characters
           </mat-error>
         </mat-form-field>
+        <mat-slide-toggle [checked]="authService.keepSigned" (change)="onKeepSigned()">Keep me signed in</mat-slide-toggle>
         <button type="submit" mat-button color="primary" [disabled]="loginForm.invalid">{{configs.actionText}}</button>
         <button type="submit" mat-button color="primary" (click)="changeAction()">{{configs.buttonActionText}}</button>
       </form>

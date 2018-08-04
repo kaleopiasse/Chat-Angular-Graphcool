@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, Inject } from '@angular/core';
 import { HttpClientModule, HttpHeaders } from '@angular/common/http';
 
 import { ApolloModule, Apollo } from 'apollo-angular';
@@ -9,6 +9,7 @@ import { environment } from '../environments/environment';
 import { onError } from 'apollo-link-error';
 import { ApolloLink } from 'apollo-link';
 import { StorageKeys } from './storage-keys';
+import { GRAPHCOOL_CONFIG, GraphcoolConfig } from './core/providers/graphcool-config.providers';
 
 
 @NgModule({
@@ -22,22 +23,18 @@ export class ApolloConfigModule {
 
   constructor(
     private apollo: Apollo,
+    @Inject (GRAPHCOOL_CONFIG) private graphcoolConfig: GraphcoolConfig,
     private httpLink: HttpLink
   ) {
-    const uri = 'https://api.graph.cool/simple/v1/cjj6jf08v3ge90110gl99q67s';
+    const uri = this.graphcoolConfig.simpleAPI;
     const http = httpLink.create({uri});
 
     const authMiddleware: ApolloLink = new ApolloLink((operation, forward) => {
-      console.log('Context', operation.getContext());
-
       operation.setContext({
         headers: new HttpHeaders({
           'Authorization': `Bearer ${this.getAuthToken()}`
         })
       })
-
-      console.log('Context', operation.getContext());
-
       return forward(operation);
     })
 

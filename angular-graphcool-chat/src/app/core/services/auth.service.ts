@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable, ReplaySubject, throwError } from '../../../../node_modules/rxjs';
-import { map, tap, catchError } from 'rxjs/operators';
+import { Observable, ReplaySubject, throwError, of } from '../../../../node_modules/rxjs';
+import { map, tap, catchError, mergeMap } from 'rxjs/operators';
 import { Apollo } from 'apollo-angular';
 
 import { AUTHENTICATE_USER_MUTATION, SIGNUP_USER_MUTATION, LOGGED_IN_USER_QUERY, LoggedInUserQuery } from './auth.graph';
 import { StorageKeys } from '../../storage-keys';
+import { Router } from '../../../../node_modules/@angular/router';
 
 
 
@@ -18,7 +19,8 @@ export class AuthService {
   private _isAuthenticated = new ReplaySubject<boolean>(1);
 
   constructor(  
-    private apollo: Apollo
+    private apollo: Apollo,
+    private router: Router
   ) { 
     this.isAuthenticated.subscribe(is => console.log('AuthState', is));
     this.init();
@@ -64,6 +66,36 @@ export class AuthService {
   toggleKeepSigned(): void {
     this.keepSigned = !this.keepSigned;
     window.localStorage.setItem(StorageKeys.KEEP_SIGNED, this.keepSigned.toString());
+  }
+
+  logout(): void {
+    window.localStorage.removeItem(StorageKeys.AUTH_TOKEN);
+    window.localStorage.removeItem(StorageKeys.KEEP_SIGNED);
+    this.keepSigned=false;
+    this._isAuthenticated.next(false);
+    this.router.navigate(['/login']);
+    this.apollo.getClient().resetStore();
+  }
+
+  autoLogin(): Observable<void> {
+    if(!this.keepSigned){
+      this._isAuthenticated.next(false);
+      window.localStorage.removeItem(StorageKeys.AUTH_TOKEN);
+      return of();
+    }
+
+    return this.validateToken()
+    .pipe(
+      tap(authData => {
+        const token = window.localStorage.getItem(StorageKeys.AUTH_TOKEN);
+        this.setAuthState({token, isAuthenticated: authData.isAuthenticated});
+      }),
+      mergeMap(res => of()),
+      catchError(error => {
+        this.setAuthState({token:null, isAuthenticated:false});
+        return throwError(error);
+      })
+    );
   }
 
   private validateToken(): Observable<{id: string, isAuthenticated: boolean}> {
